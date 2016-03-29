@@ -1,22 +1,26 @@
 {
   const db = new Firebase(config.FIREBASE_API);
 
+  function authUser (email, password) {
+    db.authWithPassword({
+      "email": email,
+      "password": password
+    }, (err, authData) => {
+      if (err) {
+        alert('Login failed');
+      } else {
+        sessionStorage.setItem('spadesLiveUserAuth', authData.token);
+        window.location.replace('index.html');
+      }
+    });
+  };
+
   $(document).ready(() => {
     $('#login-submit').click((e) => {
       e.preventDefault();
       const email = $('#login-email').val();
       const password = $('#login-password').val();
-      db.authWithPassword({
-        "email": email,
-        "password": password
-      }, (err, authData) => {
-        if (err) {
-          alert('Login failed');
-        } else {
-          sessionStorage.setItem('spadesLiveUserAuth', authData.token);
-          window.location.replace('index.html');
-        }
-      });
+      authUser(email, password);
     });
 
     $('#new-user').click((e) => {
@@ -27,6 +31,7 @@
         e.preventDefault();
         const email = $('#new-login-email').val();
         const password = $('#new-login-password').val();
+        const rating = 2000;
         const passwordConfirm = $('#new-login-password-confirm').val();
         if (password === passwordConfirm) {
           db.createUser({
@@ -46,8 +51,13 @@
                   console.log(err);
               }
             } else {
-              alert("User created successfully");
-              authUser(email, password);
+              db.child('users').child(userData.uid).set({
+                email,
+                rating
+              }, () => {
+                alert("User created successfully");
+                authUser(email, password);
+              });
             }
           });
         } else {
