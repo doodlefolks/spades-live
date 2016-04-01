@@ -10,6 +10,7 @@
         alert('Login failed');
       } else {
         sessionStorage.setItem('spadesLiveUserAuth', authData.token);
+        sessionStorage.setItem('spadesLiveUserName', email);
         window.location.replace('index.html');
       }
     });
